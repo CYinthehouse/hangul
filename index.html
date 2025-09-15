@@ -44,7 +44,7 @@
         -1px 0px 0 #ff7777, 1px 0px 0 #ff7777, 0px -1px 0 #ff7777, 0px 1px 0 #ff7777,
         -0.5px -0.5px 0 #ff7777, 0.5px -0.5px 0 #ff7777, -0.5px 0.5px 0 #ff7777, 0.5px 0.5px 0 #ff7777,
         -0.5px 0px 0 #ff7777, 0.5px 0px 0 #ff7777, 0px -0.5px 0 #ff7777, 0px 0.5px 0 #ff7777;
-      font-size: 1.5rem;
+      font-size: 1.125rem;
       line-height: 1.6;
     }
     .community-link {
@@ -268,10 +268,15 @@
           )
         ),
         React.createElement('div', { className: 'flex items-center justify-between gap-4' },
-          React.createElement('h1', { className: 'text-sm md:text-lg font-bold' }, 'Hangul Random Syllable Generator'),
+          React.createElement('h1', { className: 'text-lg md:text-2xl font-bold' }, 'Hangul Random Syllable Generator'),
           React.createElement('div', { className: 'flex items-center gap-2' },
             React.createElement('button', { className: 'btn', onClick: () => location.reload() }, 'Reset'),
-            React.createElement('button', { className: 'btn primary', onClick: downloadCSV }, 'Export CSV')
+            React.createElement('button', { className: 'btn primary', onClick: downloadCSV }, 'Export CSV'),
+            React.createElement('button', { 
+              className: 'btn', 
+              style: { background: '#ff7777', color: 'white', borderColor: '#ff7777' },
+              onClick: () => window.open('#', '_blank') 
+            }, 'Video Tutorials')
           )
         ),
 
@@ -323,7 +328,8 @@
                   BATCHIM.map(f => React.createElement('button', {
                     key: f.jamo,
                     onClick: () => toggleMap(setEnabledFinals, f.jamo),
-                    className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
+                    className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`,
+                    style: f.jamo === '(none)' ? { fontSize: '0.7rem' } : {}
                   }, f.jamo))
                 ),
                 React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
