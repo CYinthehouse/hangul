@@ -326,7 +326,7 @@
                     className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
                   }, f.jamo))
                 ),
-                React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
+                React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
               )
             ),
 
@@ -345,7 +345,7 @@
                   React.createElement('button', { className: 'btn', onClick: refreshVoices, title: 'Reload voices' }, 'Reload'),
                   React.createElement('button', { className: 'btn primary', onClick: () => speakLocal('가.', selectedVoice, rate, pitch) }, 'Test voice')
                 ),
-                React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: We recommend selecting Google from the dropdown menu above.')
+                React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' We recommend selecting Google from the dropdown menu above.')
               ),
               React.createElement('div', { className: 'space-y-2' },
                 React.createElement('label', { className: 'text-sm' }, `Speed (속도) ${rate.toFixed(2)}`),
@@ -389,7 +389,14 @@
           )
         ),
 
-        React.createElement('div', { className: 'text-sm text-gray-500' }, 'Copyright KoreanLearnin • Tip: Click any tile to hear it. If no sound, pick a specific voice or hit Reload voices.')
+        React.createElement('div', { className: 'text-sm text-gray-500' }, 
+          '\u00A9 2025 ',
+          React.createElement('span', { style: { color: '#3498db' } }, 'Korean'),
+          React.createElement('span', { style: { color: '#ff7777' } }, 'Learnin'),
+          '. All rights reserved. \u2022 ',
+          React.createElement('strong', null, 'Tip:'),
+          ' Click any tile to hear it. If no sound, pick a specific voice or hit Reload voices.'
+        )
       )
     );
   }
