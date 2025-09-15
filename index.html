@@ -23,6 +23,7 @@
     input[type="number"], select { color: black; }
     input[type="range"] { color: black; }
     input[type="number"] { color: #000 !important; }
+    select option { color: #000; }
     h1 { 
       font-family: 'Press Start 2P', cursive !important; 
       color: white !important; 
@@ -30,22 +31,34 @@
     }
     .card .font-semibold {
       font-family: 'Press Start 2P', cursive !important;
-      text-shadow: -2px -2px 0 #180d1c, 2px -2px 0 #180d1c, -2px 2px 0 #180d1c, 2px 2px 0 #180d1c !important;
+      text-shadow: 
+        -2px -2px 0 #180d1c, 2px -2px 0 #180d1c, -2px 2px 0 #180d1c, 2px 2px 0 #180d1c,
+        -2px 0px 0 #180d1c, 2px 0px 0 #180d1c, 0px -2px 0 #180d1c, 0px 2px 0 #180d1c,
+        -1px -1px 0 #180d1c, 1px -1px 0 #180d1c, -1px 1px 0 #180d1c, 1px 1px 0 #180d1c !important;
     }
     .community-text {
       font-family: 'Press Start 2P', cursive !important;
       color: white;
-      text-shadow: -2px -2px 0 #ff7777, 2px -2px 0 #ff7777, -2px 2px 0 #ff7777, 2px 2px 0 #ff7777;
-      font-size: 0.8rem;
+      text-shadow: 
+        -2px -2px 0 #ff7777, 2px -2px 0 #ff7777, -2px 2px 0 #ff7777, 2px 2px 0 #ff7777,
+        -2px 0px 0 #ff7777, 2px 0px 0 #ff7777, 0px -2px 0 #ff7777, 0px 2px 0 #ff7777,
+        -1px -1px 0 #ff7777, 1px -1px 0 #ff7777, -1px 1px 0 #ff7777, 1px 1px 0 #ff7777;
+      font-size: 1rem;
       line-height: 1.6;
     }
     .community-link {
       color: #ffff00 !important;
-      text-shadow: -2px -2px 0 #ff8800, 2px -2px 0 #ff8800, -2px 2px 0 #ff8800, 2px 2px 0 #ff8800 !important;
+      text-shadow: 
+        -2px -2px 0 #ff8800, 2px -2px 0 #ff8800, -2px 2px 0 #ff8800, 2px 2px 0 #ff8800,
+        -2px 0px 0 #ff8800, 2px 0px 0 #ff8800, 0px -2px 0 #ff8800, 0px 2px 0 #ff8800,
+        -1px -1px 0 #ff8800, 1px -1px 0 #ff8800, -1px 1px 0 #ff8800, 1px 1px 0 #ff8800 !important;
       text-decoration: none;
     }
     .community-link:hover {
-      text-shadow: -3px -3px 0 #ff8800, 3px -3px 0 #ff8800, -3px 3px 0 #ff8800, 3px 3px 0 #ff8800 !important;
+      text-shadow: 
+        -3px -3px 0 #ff8800, 3px -3px 0 #ff8800, -3px 3px 0 #ff8800, 3px 3px 0 #ff8800,
+        -3px 0px 0 #ff8800, 3px 0px 0 #ff8800, 0px -3px 0 #ff8800, 0px 3px 0 #ff8800,
+        -2px -2px 0 #ff8800, 2px -2px 0 #ff8800, -2px 2px 0 #ff8800, 2px 2px 0 #ff8800 !important;
     }
   </style>
 </head>
@@ -321,7 +334,7 @@
                 React.createElement('label', { className: 'text-sm font-bold' }, 'Voice (음성)'),
                 React.createElement('div', { className: 'flex items-center gap-2 mt-2' },
                   React.createElement('select', {
-                      className: 'border rounded-xl px-3 py-2 w-full',
+                      className: 'border rounded-xl px-3 py-2 w-full text-black bg-white [color-scheme:light]',
                       value: voiceName || (orderedVoices[0]?.name || ''),
                       onChange: e => setVoiceName(e.target.value)
                     },
