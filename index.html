@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hangul Random Syllable Generator</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* minimal focus styles */
+    :focus-visible { outline: 2px solid #111827; outline-offset: 2px; }
+    /* pretty switches */
+    .switch { position: relative; width: 44px; height: 24px; background: #e5e7eb; border-radius: 9999px; transition: background .2s; }
+    .switch:has(input:checked) { background: #111827; }
+    .switch input { display: none; }
+    .knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 9999px; transition: transform .2s; }
+    .switch:has(input:checked) .knob { transform: translateX(20px); }
+    /* simple card */
+    .card { border: 1px solid #e5e7eb; border-radius: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .btn { border-radius: 1rem; padding: .5rem .9rem; border: 1px solid #e5e7eb; background: white; }
+    .btn.primary { background: #111827; color: white; border-color: #111827; }
+    .btn:hover { box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+    .icon { width: 18px; height: 18px; }
+  </style>
+</head>
+<body class="min-h-screen w-full bg-white text-gray-900 p-6">
+  <div id="app" class="mx-auto max-w-6xl"></div>
+
+  <!-- React 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+  const { useState, useMemo, useEffect } = React;
+
+  // --- Hangul composition indices per Unicode ---
+  const CHOSEONG = [
+    { jamo: "ㄱ", idx: 0 },{ jamo: "ㄴ", idx: 2 },{ jamo: "ㄷ", idx: 3 },{ jamo: "ㄹ", idx: 5 },
+    { jamo: "ㅁ", idx: 6 },{ jamo: "ㅂ", idx: 7 },{ jamo: "ㅅ", idx: 9 },{ jamo: "ㅇ", idx: 11 },
+    { jamo: "ㅈ", idx: 12 },{ jamo: "ㅊ", idx: 14 },{ jamo: "ㅋ", idx: 15 },{ jamo: "ㅌ", idx: 16 },
+    { jamo: "ㅍ", idx: 17 },{ jamo: "ㅎ", idx: 18 },
+  ];
+
+  const ALL_VOWELS = [
+    { jamo: "ㅏ", idx: 0 },{ jamo: "ㅑ", idx: 2 },{ jamo: "ㅓ", idx: 4 },{ jamo: "ㅕ", idx: 6 },
+    { jamo: "ㅗ", idx: 8 },{ jamo: "ㅛ", idx: 12 },{ jamo: "ㅜ", idx: 13 },{ jamo: "ㅠ", idx: 17 },
+    { jamo: "ㅡ", idx: 18 },{ jamo: "ㅣ", idx: 20 },
+  ];
+
+  const BATCHIM = [
+    { jamo: "(none)", idx: 0 },{ jamo: "ㄱ", idx: 1 },{ jamo: "ㄴ", idx: 4 },{ jamo: "ㄷ", idx: 7 },
+    { jamo: "ㄹ", idx: 8 },{ jamo: "ㅁ", idx: 16 },{ jamo: "ㅂ", idx: 17 },{ jamo: "ㅇ", idx: 21 },
+    { jamo: "ㅅ", idx: 19 },{ jamo: "ㅆ", idx: 20 },{ jamo: "ㅈ", idx: 22 },{ jamo: "ㅊ", idx: 23 },
+    { jamo: "ㅋ", idx: 24 },{ jamo: "ㅌ", idx: 25 },{ jamo: "ㅍ", idx: 26 },{ jamo: "ㅎ", idx: 27 },
+  ];
+
+  function composeHangul(choIdx, jungIdx, jongIdx) {
+    const base = 0xac00; // '가'
+    const codePoint = base + (choIdx * 21 + jungIdx) * 28 + jongIdx;
+    return String.fromCharCode(codePoint);
+  }
+
+  function useSyllableSet(count, ensureAllInitials, vowels, finals, allowNoFinal) {
+    return React.useMemo(() => {
+      const out = [];
+      const finalsFiltered = allowNoFinal ? finals : finals.filter(f => f.idx !== 0);
+      const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+      if (ensureAllInitials) {
+        for (const ch of CHOSEONG) {
+          const v = pick(vowels);
+          const j = pick(finalsFiltered);
+          out.push({
+            syll: composeHangul(ch.idx, v.idx, j.idx),
+            parts: `${ch.jamo}${v.jamo}${j.jamo === "(none)" ? "" : j.jamo}`,
+          });
+        }
+      }
+      while (out.length < count) {
+        const ch = pick(CHOSEONG);
+        const v = pick(vowels);
+        const j = pick(finalsFiltered);
+        out.push({
+          syll: composeHangul(ch.idx, v.idx, j.idx),
+          parts: `${ch.jamo}${v.jamo}${j.jamo === "(none)" ? "" : j.jamo}`,
+        });
+      }
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out.slice(0, count);
+    }, [count, ensureAllInitials, vowels, finals, allowNoFinal]);
+  }
+
+  function getAllVoices(){
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return [];
+    return window.speechSynthesis.getVoices();
+  }
+  function filterKoreanVoices(voices){
+    const isKo = (v) => (v.lang||'').toLowerCase().startsWith('ko');
+    const inName = (v) => /korean|한국어|국어|ko-kr/i.test(v.name||'');
+    const ko = voices.filter(v => isKo(v) || inName(v));
+    return ko.length ? ko : voices;
+  }
+  const HIGH_QUALITY_PRIORITY = [
+    /Google.*Korean/i, /Google 한국의/i, /Microsoft.*Korean.*(Neural|Online|Natural)/i,
+    /SunHi|InJoon|Minjun|Seoyeon|Suna/i, /Yuna|Ara|Sora|Jiyeon|Joon|Hyun|Seung|Young/i, /ko-KR/i
+  ];
+  function pickBestKoreanVoice(voices, gender){
+    const korean = filterKoreanVoices(voices);
+    for (const rx of HIGH_QUALITY_PRIORITY){
+      const v = korean.find(vv => rx.test(vv.name||''));
+      if (v) return v;
+    }
+    const hints = gender === 'female' ? /(female|woman|여|na|yeo)/i : /(male|man|남|jun|joon|min)/i;
+    const byGender = korean.find(v => hints.test(v.name||''));
+    if (byGender) return byGender;
+    return korean[0] || voices[0] || null;
+  }
+  function speak(text, voice, rate=0.95, pitch=1.0){
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !text) return;
+    const synth = window.speechSynthesis;
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      if (voice) u.voice = voice;
+      u.lang = (voice && voice.lang) || 'ko-KR';
+      u.rate = rate; u.pitch = pitch;
+      synth.cancel();
+      synth.speak(u);
+    }catch(e){ console.error(e); }
+  }
+  function stopSpeaking(){ if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
+  function readAllQueued(syllables, voice, rate, pitch, pauseMs){
+    if (!('speechSynthesis' in window)) return;
+    const synth = window.speechSynthesis; synth.cancel();
+    let i = 0;
+    const speakNext = () => {
+      if (i >= syllables.length) return;
+      const u = new SpeechSynthesisUtterance(syllables[i]);
+      if (voice) u.voice = voice;
+      u.lang = (voice && voice.lang) || 'ko-KR';
+      u.rate = rate; u.pitch = pitch;
+      u.onend = () => setTimeout(() => { i += 1; speakNext(); }, pauseMs);
+      synth.speak(u);
+    };
+    speakNext();
+  }
+  function buildCsvContent(rows){
+    const header = "syllable,parts";
+    const body = rows.map(d => `${d.syll},${d.parts}`).join("\n");
+    return `${header}\n${body}`;
+  }
+
+  function App(){
+    const [count, setCount] = useState(28);
+    const [ensureAllInitials, setEnsureAllInitials] = useState(true);
+    const [allowNoFinal, setAllowNoFinal] = useState(false);
+    const [enabledVowels, setEnabledVowels] = useState(() => Object.fromEntries(ALL_VOWELS.map(v => [v.jamo, true])));
+    const [enabledFinals, setEnabledFinals] = useState(() => {
+      const defaults = ["ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅇ"]; const initial = {}; BATCHIM.forEach(f=>initial[f.jamo]=false); defaults.forEach(k=>initial[k]=true); return initial;
+    });
+
+    const [voiceGender, setVoiceGender] = useState('female');
+    const [voiceName, setVoiceName] = useState('auto');
+    const [rate, setRate] = useState(0.9);
+    const [pitch, setPitch] = useState(1.0);
+    const [pauseMs, setPauseMs] = useState(180);
+    const [crispSingle, setCrispSingle] = useState(true);
+    const [voices, setVoices] = useState([]);
+
+    useEffect(() => {
+      const load = () => setVoices(getAllVoices());
+      load();
+      if ('speechSynthesis' in window){
+        window.speechSynthesis.onvoiceschanged = load;
+        const t = setTimeout(load, 600);
+        return () => { clearTimeout(t); window.speechSynthesis.onvoiceschanged = null; };
+      }
+    }, []);
+
+    const selectedVoice = useMemo(() => {
+      if (!voices.length) return null;
+      if (voiceName !== 'auto') return voices.find(v => v.name === voiceName) || null;
+      return pickBestKoreanVoice(voices, voiceGender);
+    }, [voices, voiceName, voiceGender]);
+
+    const vowels = useMemo(() => ALL_VOWELS.filter(v => enabledVowels[v.jamo]), [enabledVowels]);
+    const finals = useMemo(() => BATCHIM.filter(f => enabledFinals[f.jamo]), [enabledFinals]);
+
+    const data = useSyllableSet(
+      count, ensureAllInitials,
+      vowels.length ? vowels : ALL_VOWELS,
+      finals.length ? finals : BATCHIM.filter(f => f.idx !== 0),
+      allowNoFinal
+    );
+
+    const toggleMap = (setter, key) => setter(prev => ({ ...prev, [key]: !prev[key] }));
+
+    const downloadCSV = () => {
+      const csv = buildCsvContent(data);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'hangul_random_syllables.csv'; a.click(); URL.revokeObjectURL(url);
+    };
+
+    const refreshVoices = () => setVoices(getAllVoices());
+
+    return (
+      React.createElement('div', { className: 'space-y-6' },
+        React.createElement('div', { className: 'flex items-center justify-between gap-4' },
+          React.createElement('h1', { className: 'text-2xl md:text-3xl font-bold' }, 'Hangul Random Syllable Generator'),
+          React.createElement('div', { className: 'flex items-center gap-2' },
+            React.createElement('button', { className: 'btn', onClick: () => location.reload() }, 'Reset'),
+            React.createElement('button', { className: 'btn primary', onClick: downloadCSV }, 'Export CSV')
+          )
+        ),
+
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'p-5 border-b' },
+            React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Settings')
+          ),
+          React.createElement('div', { className: 'p-5 space-y-6' },
+            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6' },
+              // column 1
+              React.createElement('div', { className: 'space-y-3' },
+                React.createElement('label', { className: 'text-sm' }, 'How many syllables?'),
+                React.createElement('div', { className: 'flex items-center gap-4' },
+                  React.createElement('input', { type: 'range', min: 14, max: 140, step: 1, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-full' }),
+                  React.createElement('input', { type: 'number', min: 14, max: 140, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-24 border rounded-xl px-3 py-2' })
+                ),
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                  React.createElement('label', { className: 'text-sm' }, 'Ensure all initials (ㄱ–ㅎ) appear'),
+                  React.createElement('label', { className: 'switch' },
+                    React.createElement('input', { type: 'checkbox', checked: ensureAllInitials, onChange: e => setEnsureAllInitials(e.target.checked) }),
+                    React.createElement('span', { className: 'knob' })
+                  )
+                ),
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                  React.createElement('label', { className: 'text-sm' }, 'Allow no final (CV)'),
+                  React.createElement('label', { className: 'switch' },
+                    React.createElement('input', { type: 'checkbox', checked: allowNoFinal, onChange: e => setAllowNoFinal(e.target.checked) }),
+                    React.createElement('span', { className: 'knob' })
+                  )
+                )
+              ),
+
+              // column 2: vowels
+              React.createElement('div', { className: 'space-y-2' },
+                React.createElement('label', { className: 'text-sm' }, 'Vowels (중성)'),
+                React.createElement('div', { className: 'grid grid-cols-10 gap-2' },
+                  ALL_VOWELS.map(v => React.createElement('button', {
+                    key: v.jamo,
+                    onClick: () => toggleMap(setEnabledVowels, v.jamo),
+                    className: `border rounded-xl py-2 text-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white'}`
+                  }, v.jamo))
+                )
+              ),
+
+              // column 3: finals
+              React.createElement('div', { className: 'space-y-2' },
+                React.createElement('label', { className: 'text-sm' }, 'Finals / 받침 (종성)'),
+                React.createElement('div', { className: 'grid grid-cols-8 gap-2' },
+                  BATCHIM.map(f => React.createElement('button', {
+                    key: f.jamo,
+                    onClick: () => toggleMap(setEnabledFinals, f.jamo),
+                    className: `border rounded-xl py-2 text-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white'}`
+                  }, f.jamo))
+                ),
+                React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off “Allow no final”.')
+              )
+            ),
+
+            // speech settings
+            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 border-t' },
+              React.createElement('div', { className: 'space-y-2' },
+                React.createElement('label', { className: 'text-sm' }, 'Voice (음성)'),
+                React.createElement('div', { className: 'flex gap-2' },
+                  React.createElement('button', { className: `btn ${voiceGender==='female' && voiceName==='auto' ? 'primary' : ''}`, onClick: () => { setVoiceName('auto'); setVoiceGender('female'); } }, '여성 (Auto)'),
+                  React.createElement('button', { className: `btn ${voiceGender==='male' && voiceName==='auto' ? 'primary' : ''}`, onClick: () => { setVoiceName('auto'); setVoiceGender('male'); } }, '남성 (Auto)')
+                ),
+                React.createElement('div', { className: 'flex items-center gap-2 mt-2' },
+                  React.createElement('select', { className: 'border rounded-xl px-3 py-2 w-full', value: voiceName, onChange: e => setVoiceName(e.target.value) },
+                    React.createElement('option', { value: 'auto' }, '— Prefer highest‑quality Korean (auto) —'),
+                    voices.map((v, idx) => React.createElement('option', { key: idx, value: v.name }, `${v.name} ${v.lang ? '('+v.lang+')' : ''}`))
+                  ),
+                  React.createElement('button', { className: 'btn', onClick: refreshVoices, title: 'Reload voices' }, 'Reload'),
+                  React.createElement('button', { className: 'btn primary', onClick: () => speak('가.', selectedVoice, rate, pitch) }, 'Test voice')
+                ),
+                React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: If the voice sounds robotic, keep "Auto" selected and hit Reload. Browsers may expose higher‑quality neural voices after a moment.')
+              ),
+              React.createElement('div', { className: 'space-y-2' },
+                React.createElement('label', { className: 'text-sm' }, `Speed (속도) ${rate.toFixed(2)}`),
+                React.createElement('input', { type: 'range', min: 0.6, max: 1.2, step: 0.01, value: rate, onChange: e => setRate(parseFloat(e.target.value)), className: 'w-full' }),
+                React.createElement('label', { className: 'text-sm' }, `Pause between syllables (ms): ${pauseMs}ms`),
+                React.createElement('input', { type: 'range', min: 80, max: 400, step: 10, value: pauseMs, onChange: e => setPauseMs(parseInt(e.target.value)), className: 'w-full' })
+              ),
+              React.createElement('div', { className: 'space-y-2' },
+                React.createElement('div', { className: 'flex items-center justify-between' },
+                  React.createElement('label', { className: 'text-sm' }, 'Crisp single‑syllable mode (adds a period)'),
+                  React.createElement('label', { className: 'switch' },
+                    React.createElement('input', { type: 'checkbox', checked: crispSingle, onChange: e => setCrispSingle(e.target.checked) }),
+                    React.createElement('span', { className: 'knob' })
+                  )
+                ),
+                React.createElement('label', { className: 'text-sm' }, `Pitch (톤) ${pitch.toFixed(2)}`),
+                React.createElement('input', { type: 'range', min: 0.8, max: 1.2, step: 0.01, value: pitch, onChange: e => setPitch(parseFloat(e.target.value)), className: 'w-full' })
+              )
+            )
+          )
+        ),
+
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'p-5 border-b' },
+            React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Random Mix')
+          ),
+          React.createElement('div', { className: 'p-5' },
+            React.createElement('div', { className: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3' },
+              data.map((d, i) => React.createElement('button', {
+                key: i,
+                className: 'aspect-square flex items-center justify-center text-2xl md:text-3xl border rounded-2xl hover:shadow focus:outline-none transition-transform',
+                title: `${d.parts} — Click to hear`,
+                onClick: () => speak((crispSingle ? d.syll + '.' : d.syll), selectedVoice, rate, pitch)
+              }, d.syll))
+            ),
+            React.createElement('div', { className: 'mt-4 flex items-center justify-center gap-3' },
+              React.createElement('button', { className: 'btn primary', onClick: () => { // force a new randomization by toggling count slightly
+                setCount(c => (c >= 14 ? c - 0.0001 : c + 0.0001));
+              } }, 'Shuffle'),
+              React.createElement('button', { className: 'btn', onClick: () => readAllQueued(data.map(d=>d.syll), selectedVoice, Math.max(0.8, rate-0.05), pitch, pauseMs) }, 'Read All (queued)'),
+              React.createElement('button', { className: 'btn', onClick: stopSpeaking }, 'Stop')
+            )
+          )
+        ),
+
+        React.createElement('div', { className: 'text-sm text-gray-500' }, 'Built for Calvin • Tip: Click any tile to hear it. If no sound, pick a specific voice or hit Reload voices.')
+      )
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('app'));
+  root.render(React.createElement(App));
+  </script>
+</body>
+</html>
