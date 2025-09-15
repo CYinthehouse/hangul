@@ -13,14 +13,14 @@
     .switch input { display: none; }
     .knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 9999px; transition: transform .2s; }
     .switch:has(input:checked) .knob { transform: translateX(20px); }
-    .card { border: 1px solid #e5e7eb; border-radius: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
-    .btn { border-radius: 1rem; padding: .5rem .9rem; border: 1px solid #e5e7eb; background: white; }
+            .card { border: 1px solid #e5e7eb; border-radius: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); background: rgba(255, 255, 255, 0.7); }
+            .btn { border-radius: 1rem; padding: .5rem .9rem; border: 1px solid #e5e7eb; background: white; opacity: 1; color: black; }
     .btn.primary { background: #111827; color: white; border-color: #111827; }
     .btn:hover { box-shadow: 0 1px 6px rgba(0,0,0,.08); }
     .icon { width: 18px; height: 18px; }
   </style>
 </head>
-<body class="min-h-screen w-full bg-white text-gray-900 p-6">
+<body class="min-h-screen w-full text-white p-6" style="background: url('https://cdn.shopify.com/s/files/1/0674/6747/7282/files/sky.png?v=1750990355') repeat;">
   <div id="app" class="mx-auto max-w-6xl"></div>
 
   <!-- React 18 -->
@@ -231,7 +231,7 @@
                 React.createElement('label', { className: 'text-sm' }, 'How many syllables?'),
                 React.createElement('div', { className: 'flex items-center gap-4' },
                   React.createElement('input', { type: 'range', min: 14, max: 140, step: 1, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-full' }),
-                  React.createElement('input', { type: 'number', min: 14, max: 140, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-24 border rounded-xl px-3 py-2' })
+                  React.createElement('input', { type: 'number', min: 14, max: 140, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-24 border rounded-xl px-3 py-2 text-black' })
                 ),
                 React.createElement('div', { className: 'flex items-center justify-between' },
                   React.createElement('label', { className: 'text-sm' }, 'Ensure all initials (ㄱ–ㅎ) appear'),
@@ -256,7 +256,7 @@
                   ALL_VOWELS.map(v => React.createElement('button', {
                     key: v.jamo,
                     onClick: () => toggleMap(setEnabledVowels, v.jamo),
-                    className: `border rounded-xl py-2 text-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white'}`
+                    className: `border rounded-xl py-2 text-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
                   }, v.jamo))
                 )
               ),
@@ -268,7 +268,7 @@
                   BATCHIM.map(f => React.createElement('button', {
                     key: f.jamo,
                     onClick: () => toggleMap(setEnabledFinals, f.jamo),
-                    className: `border rounded-xl py-2 text-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white'}`
+                    className: `border rounded-xl py-2 text-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
                   }, f.jamo))
                 ),
                 React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
