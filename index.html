@@ -205,6 +205,13 @@
 
     return (
       React.createElement('div', { className: 'space-y-6' },
+        React.createElement('div', { className: 'text-center mb-6' },
+          React.createElement('img', { 
+            src: 'https://cdn.shopify.com/s/files/1/0674/6747/7282/files/logo555.png?v=1757969221',
+            alt: 'Logo',
+            className: 'mx-auto max-w-xs h-auto'
+          })
+        ),
         React.createElement('div', { className: 'flex items-center justify-between gap-4' },
           React.createElement('h1', { className: 'text-2xl md:text-3xl font-bold' }, 'Hangul Random Syllable Generator'),
           React.createElement('div', { className: 'flex items-center gap-2' },
@@ -264,7 +271,7 @@
                     className: `border rounded-xl py-2 text-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white'}`
                   }, f.jamo))
                 ),
-                React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off “Allow no final”.')
+                React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
               )
             ),
 
