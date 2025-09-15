@@ -40,25 +40,27 @@
       font-family: 'Press Start 2P', cursive !important;
       color: white;
       text-shadow: 
-        -2px -2px 0 #ff7777, 2px -2px 0 #ff7777, -2px 2px 0 #ff7777, 2px 2px 0 #ff7777,
-        -2px 0px 0 #ff7777, 2px 0px 0 #ff7777, 0px -2px 0 #ff7777, 0px 2px 0 #ff7777,
-        -1px -1px 0 #ff7777, 1px -1px 0 #ff7777, -1px 1px 0 #ff7777, 1px 1px 0 #ff7777;
-      font-size: 1rem;
+        -1px -1px 0 #ff7777, 1px -1px 0 #ff7777, -1px 1px 0 #ff7777, 1px 1px 0 #ff7777,
+        -1px 0px 0 #ff7777, 1px 0px 0 #ff7777, 0px -1px 0 #ff7777, 0px 1px 0 #ff7777,
+        -0.5px -0.5px 0 #ff7777, 0.5px -0.5px 0 #ff7777, -0.5px 0.5px 0 #ff7777, 0.5px 0.5px 0 #ff7777,
+        -0.5px 0px 0 #ff7777, 0.5px 0px 0 #ff7777, 0px -0.5px 0 #ff7777, 0px 0.5px 0 #ff7777;
+      font-size: 1.5rem;
       line-height: 1.6;
     }
     .community-link {
       color: #ffff00 !important;
       text-shadow: 
-        -2px -2px 0 #ff8800, 2px -2px 0 #ff8800, -2px 2px 0 #ff8800, 2px 2px 0 #ff8800,
-        -2px 0px 0 #ff8800, 2px 0px 0 #ff8800, 0px -2px 0 #ff8800, 0px 2px 0 #ff8800,
-        -1px -1px 0 #ff8800, 1px -1px 0 #ff8800, -1px 1px 0 #ff8800, 1px 1px 0 #ff8800 !important;
+        -1px -1px 0 #ff8800, 1px -1px 0 #ff8800, -1px 1px 0 #ff8800, 1px 1px 0 #ff8800,
+        -1px 0px 0 #ff8800, 1px 0px 0 #ff8800, 0px -1px 0 #ff8800, 0px 1px 0 #ff8800,
+        -0.5px -0.5px 0 #ff8800, 0.5px -0.5px 0 #ff8800, -0.5px 0.5px 0 #ff8800, 0.5px 0.5px 0 #ff8800,
+        -0.5px 0px 0 #ff8800, 0.5px 0px 0 #ff8800, 0px -0.5px 0 #ff8800, 0px 0.5px 0 #ff8800 !important;
       text-decoration: none;
     }
     .community-link:hover {
       text-shadow: 
-        -3px -3px 0 #ff8800, 3px -3px 0 #ff8800, -3px 3px 0 #ff8800, 3px 3px 0 #ff8800,
-        -3px 0px 0 #ff8800, 3px 0px 0 #ff8800, 0px -3px 0 #ff8800, 0px 3px 0 #ff8800,
-        -2px -2px 0 #ff8800, 2px -2px 0 #ff8800, -2px 2px 0 #ff8800, 2px 2px 0 #ff8800 !important;
+        -1.5px -1.5px 0 #ff8800, 1.5px -1.5px 0 #ff8800, -1.5px 1.5px 0 #ff8800, 1.5px 1.5px 0 #ff8800,
+        -1.5px 0px 0 #ff8800, 1.5px 0px 0 #ff8800, 0px -1.5px 0 #ff8800, 0px 1.5px 0 #ff8800,
+        -1px -1px 0 #ff8800, 1px -1px 0 #ff8800, -1px 1px 0 #ff8800, 1px 1px 0 #ff8800 !important;
     }
   </style>
 </head>
@@ -266,7 +268,7 @@
           )
         ),
         React.createElement('div', { className: 'flex items-center justify-between gap-4' },
-          React.createElement('h1', { className: 'text-2xl md:text-3xl font-bold' }, 'Hangul Random Syllable Generator'),
+          React.createElement('h1', { className: 'text-sm md:text-lg font-bold' }, 'Hangul Random Syllable Generator'),
           React.createElement('div', { className: 'flex items-center gap-2' },
             React.createElement('button', { className: 'btn', onClick: () => location.reload() }, 'Reset'),
             React.createElement('button', { className: 'btn primary', onClick: downloadCSV }, 'Export CSV')
@@ -309,7 +311,7 @@
                   ALL_VOWELS.map(v => React.createElement('button', {
                     key: v.jamo,
                     onClick: () => toggleMap(setEnabledVowels, v.jamo),
-                    className: `border rounded-xl py-2 text-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
+                    className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
                   }, v.jamo))
                 )
               ),
@@ -321,7 +323,7 @@
                   BATCHIM.map(f => React.createElement('button', {
                     key: f.jamo,
                     onClick: () => toggleMap(setEnabledFinals, f.jamo),
-                    className: `border rounded-xl py-2 text-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
+                    className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
                   }, f.jamo))
                 ),
                 React.createElement('p', { className: 'text-xs text-gray-500' }, 'Tip: For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
