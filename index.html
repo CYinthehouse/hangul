@@ -67,7 +67,7 @@
       position: relative;
       width: 100%;
       height: 0;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      padding-bottom: 42.1875%; /* 25% smaller than 16:9 aspect ratio */
       overflow: hidden;
       border-radius: 1rem;
     }
@@ -478,7 +478,7 @@
           React.createElement('h1', { className: 'text-lg md:text-2xl font-bold text-center mb-8' }, 'Video Tutorials & PDFs'),
           
           // Aspiration Instruction Video
-          React.createElement('div', { className: 'card mb-6' },
+          React.createElement('div', { className: 'card mb-8' },
             React.createElement('div', { className: 'p-5 border-b' },
               React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Aspiration Instruction Video')
             ),
@@ -495,7 +495,7 @@
           ),
 
           // Consonant Aspiration Cheatsheet
-          React.createElement('div', { className: 'card mb-6' },
+          React.createElement('div', { className: 'card mb-8' },
             React.createElement('div', { className: 'p-5 border-b' },
               React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Consonant Aspiration Cheatsheet')
             ),
@@ -510,7 +510,7 @@
           ),
 
           // Consonant Carry Instruction Video
-          React.createElement('div', { className: 'card mb-6' },
+          React.createElement('div', { className: 'card mb-8' },
             React.createElement('div', { className: 'p-5 border-b' },
               React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Consonant Carry Instruction Video')
             ),
@@ -527,7 +527,7 @@
           ),
 
           // Consonant Assimilation CheatSheet
-          React.createElement('div', { className: 'card mb-6' },
+          React.createElement('div', { className: 'card mb-8' },
             React.createElement('div', { className: 'p-5 border-b' },
               React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Consonant Assimilation CheatSheet')
             ),
@@ -538,7 +538,10 @@
                   allowFullScreen: true
                 })
               ),
-              React.createElement('p', { className: 'text-2xl text-gray-600 mt-3 text-center font-bold' }, 'For those who have mastered aspiration')
+              React.createElement('p', { 
+                className: 'text-base text-gray-600 mt-3 text-center font-bold',
+                style: { fontFamily: "'Press Start 2P', cursive" }
+              }, 'For those who have mastered aspiration')
             )
           ),
 
