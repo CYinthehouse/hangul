@@ -18,6 +18,7 @@
     .card { border: 1px solid #e5e7eb; border-radius: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); background: rgba(255, 255, 255, 0.7); }
     .btn { border-radius: 1rem; padding: .5rem .9rem; border: 1px solid #e5e7eb; background: white; opacity: 1; color: black; }
     .btn.primary { background: #111827; color: white; border-color: #111827; }
+    .btn.purple { background: #9b59b6; color: white; border-color: #9b59b6; }
     .btn:hover { box-shadow: 0 1px 6px rgba(0,0,0,.08); }
     .icon { width: 18px; height: 18px; }
     input[type="number"], select { color: black; }
@@ -61,6 +62,30 @@
         -1.5px -1.5px 0 #ff8800, 1.5px -1.5px 0 #ff8800, -1.5px 1.5px 0 #ff8800, 1.5px 1.5px 0 #ff8800,
         -1.5px 0px 0 #ff8800, 1.5px 0px 0 #ff8800, 0px -1.5px 0 #ff8800, 0px 1.5px 0 #ff8800,
         -1px -1px 0 #ff8800, 1px -1px 0 #ff8800, -1px 1px 0 #ff8800, 1px 1px 0 #ff8800 !important;
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      overflow: hidden;
+      border-radius: 1rem;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 1rem;
+    }
+    .step {
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .step.fade-out {
+      opacity: 0;
     }
   </style>
 </head>
@@ -186,6 +211,8 @@
     speakNext();
   }
 
+
+
   function App(){
     const [count, setCount] = useState(28);
     const [ensureAllInitials, setEnsureAllInitials] = useState(true);
@@ -247,161 +274,281 @@
 
     const refreshVoices = () => setVoices(filterKoreanVoices(getAllVoices()));
 
+    // Add showStep function to window so it can be called from embedded script
+    useEffect(() => {
+      window.showStep = (stepId) => {
+        const allSteps = document.querySelectorAll('.step');
+        const currentStep = Array.from(allSteps).find(step => step.style.display !== 'none');
+        const targetStep = document.getElementById(stepId);
+        
+        if (currentStep && targetStep && currentStep !== targetStep) {
+          // Fade out current step
+          currentStep.classList.add('fade-out');
+          
+          setTimeout(() => {
+            // Hide current step and show new step
+            allSteps.forEach(step => step.style.display = 'none');
+            targetStep.style.display = 'block';
+            
+            // Remove fade-out class and ensure target is visible
+            currentStep.classList.remove('fade-out');
+            targetStep.classList.remove('fade-out');
+            
+            window.scrollTo(0, 0);
+          }, 300);
+        } else if (targetStep) {
+          // Direct switch if no current step or same step
+          allSteps.forEach(step => step.style.display = 'none');
+          targetStep.style.display = 'block';
+          window.scrollTo(0, 0);
+        }
+      };
+    }, []);
+
     return (
       React.createElement('div', { className: 'space-y-6' },
-        React.createElement('div', { className: 'text-center mb-6' },
-          React.createElement('img', { 
-            src: 'https://cdn.shopify.com/s/files/1/0674/6747/7282/files/logo555.png?v=1757969221',
-            alt: 'Logo',
-            className: 'mx-auto max-w-xs h-auto'
-          })
-        ),
-        React.createElement('div', { className: 'text-center mb-4' },
-          React.createElement('p', { className: 'community-text' },
-            'Want more? Click ',
-            React.createElement('a', { 
-              href: 'https://cyinthehouse.github.io/freecommunity/',
-              target: '_blank',
-              className: 'community-link'
-            }, 'HERE'),
-            ' to join the free community!'
-          )
-        ),
-        React.createElement('div', { className: 'flex items-center justify-between gap-4' },
-          React.createElement('h1', { className: 'text-lg md:text-2xl font-bold' }, 'Hangul Random Syllable Generator'),
-          React.createElement('div', { className: 'flex items-center gap-2' },
-            React.createElement('button', { className: 'btn', onClick: () => location.reload() }, 'Reset'),
-            React.createElement('button', { className: 'btn primary', onClick: downloadCSV }, 'Export CSV'),
-            React.createElement('button', { 
-              className: 'btn', 
-              style: { background: '#ff7777', color: 'white', borderColor: '#ff7777' },
-              onClick: () => window.open('#', '_blank') 
-            }, 'Video Tutorials')
-          )
-        ),
-
-        React.createElement('div', { className: 'card' },
-          React.createElement('div', { className: 'p-5 border-b' },
-            React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Settings')
+        // Main page step
+        React.createElement('div', { id: 'mainPage', className: 'step', style: { display: 'block' } },
+          React.createElement('div', { className: 'text-center mb-6' },
+            React.createElement('img', { 
+              src: 'https://cdn.shopify.com/s/files/1/0674/6747/7282/files/logo555.png?v=1757969221',
+              alt: 'Logo',
+              className: 'mx-auto max-w-xs h-auto'
+            })
           ),
-          React.createElement('div', { className: 'p-5 space-y-6' },
-            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6' },
-              // column 1
-              React.createElement('div', { className: 'space-y-3' },
-                React.createElement('label', { className: 'text-sm font-bold' }, 'How many syllables?'),
-                React.createElement('div', { className: 'flex items-center gap-4' },
-                  React.createElement('input', { type: 'range', min: 14, max: 140, step: 1, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-full' }),
-                  React.createElement('input', { type: 'number', min: 14, max: 140, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-24 border rounded-xl px-3 py-2 text-black' })
-                ),
-                React.createElement('div', { className: 'flex items-center justify-between' },
-                  React.createElement('label', { className: 'text-sm' }, 'Ensure all initials (ㄱ–ㅎ) appear'),
-                  React.createElement('label', { className: 'switch' },
-                    React.createElement('input', { type: 'checkbox', checked: ensureAllInitials, onChange: e => setEnsureAllInitials(e.target.checked) }),
-                    React.createElement('span', { className: 'knob' })
-                  )
-                ),
-                React.createElement('div', { className: 'flex items-center justify-between' },
-                  React.createElement('label', { className: 'text-sm' }, 'Allow no final (CV)'),
-                  React.createElement('label', { className: 'switch' },
-                    React.createElement('input', { type: 'checkbox', checked: allowNoFinal, onChange: e => setAllowNoFinal(e.target.checked) }),
-                    React.createElement('span', { className: 'knob' })
-                  )
-                )
-              ),
+          React.createElement('div', { className: 'text-center mb-4' },
+            React.createElement('p', { className: 'community-text' },
+              'Want more? Click ',
+              React.createElement('a', { 
+                href: 'https://cyinthehouse.github.io/freecommunity/',
+                target: '_blank',
+                className: 'community-link'
+              }, 'HERE'),
+              ' to join the free community!'
+            )
+          ),
+          React.createElement('div', { className: 'flex items-center justify-between gap-4' },
+            React.createElement('h1', { className: 'text-lg md:text-2xl font-bold' }, 'Hangul Random Syllable Generator'),
+            React.createElement('div', { className: 'flex items-center gap-2' },
+              React.createElement('button', { className: 'btn', onClick: () => location.reload() }, 'Reset'),
+              React.createElement('button', { className: 'btn primary', onClick: downloadCSV }, 'Export CSV'),
+              React.createElement('button', { 
+                className: 'btn', 
+                style: { background: '#ff7777', color: 'white', borderColor: '#ff7777' },
+                onClick: () => window.showStep('videoTutorials')
+              }, 'Video Tutorials')
+            )
+          ),
 
-              // column 2: vowels
-              React.createElement('div', { className: 'space-y-2' },
-                React.createElement('label', { className: 'text-sm font-bold' }, 'Vowels (중성)'),
-                React.createElement('div', { className: 'grid grid-cols-10 gap-2' },
-                  ALL_VOWELS.map(v => React.createElement('button', {
-                    key: v.jamo,
-                    onClick: () => toggleMap(setEnabledVowels, v.jamo),
-                    className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
-                  }, v.jamo))
-                )
-              ),
-
-              // column 3: finals
-              React.createElement('div', { className: 'space-y-2' },
-                React.createElement('label', { className: 'text-sm font-bold' }, 'Finals / 받침 (종성)'),
-                React.createElement('div', { className: 'grid grid-cols-8 gap-2' },
-                  BATCHIM.map(f => React.createElement('button', {
-                    key: f.jamo,
-                    onClick: () => toggleMap(setEnabledFinals, f.jamo),
-                    className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`,
-                    style: f.jamo === '(none)' ? { fontSize: '0.7rem' } : {}
-                  }, f.jamo))
-                ),
-                React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
-              )
+          React.createElement('div', { className: 'card' },
+            React.createElement('div', { className: 'p-5 border-b' },
+              React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Settings')
             ),
-
-            // speech settings
-            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 border-t' },
-              React.createElement('div', { className: 'space-y-2' },
-                React.createElement('label', { className: 'text-sm font-bold' }, 'Voice (음성)'),
-                React.createElement('div', { className: 'flex items-center gap-2 mt-2' },
-                  React.createElement('select', {
-                      className: 'border rounded-xl px-3 py-2 w-full text-black bg-white [color-scheme:light]',
-                      value: voiceName || (orderedVoices[0]?.name || ''),
-                      onChange: e => setVoiceName(e.target.value)
-                    },
-                    orderedVoices.map((v, idx) => React.createElement('option', { key: idx, value: v.name }, `${v.name} ${v.lang ? '('+v.lang+')' : ''}`))
+            React.createElement('div', { className: 'p-5 space-y-6' },
+              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6' },
+                // column 1
+                React.createElement('div', { className: 'space-y-3' },
+                  React.createElement('label', { className: 'text-sm font-bold' }, 'How many syllables?'),
+                  React.createElement('div', { className: 'flex items-center gap-4' },
+                    React.createElement('input', { type: 'range', min: 14, max: 140, step: 1, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-full' }),
+                    React.createElement('input', { type: 'number', min: 14, max: 140, value: count, onChange: e => setCount(parseInt(e.target.value || '28')), className: 'w-24 border rounded-xl px-3 py-2 text-black' })
                   ),
-                  React.createElement('button', { className: 'btn', onClick: refreshVoices, title: 'Reload voices' }, 'Reload'),
-                  React.createElement('button', { className: 'btn primary', onClick: () => speakLocal('가.', selectedVoice, rate, pitch) }, 'Test voice')
-                ),
-                React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' We recommend selecting Google from the dropdown menu above.')
-              ),
-              React.createElement('div', { className: 'space-y-2' },
-                React.createElement('label', { className: 'text-sm' }, `Speed (속도) ${rate.toFixed(2)}`),
-                React.createElement('input', { type: 'range', min: 0.6, max: 1.2, step: 0.01, value: rate, onChange: e => setRate(parseFloat(e.target.value)), className: 'w-full' }),
-                React.createElement('label', { className: 'text-sm' }, `Pause between syllables (ms): ${pauseMs}ms`),
-                React.createElement('input', { type: 'range', min: 80, max: 400, step: 10, value: pauseMs, onChange: e => setPauseMs(parseInt(e.target.value)), className: 'w-full' })
-              ),
-              React.createElement('div', { className: 'space-y-2' },
-                React.createElement('div', { className: 'flex items-center justify-between' },
-                  React.createElement('label', { className: 'text-sm' }, 'Crisp single-syllable mode (adds a period)'),
-                  React.createElement('label', { className: 'switch' },
-                    React.createElement('input', { type: 'checkbox', checked: crispSingle, onChange: e => setCrispSingle(e.target.checked) }),
-                    React.createElement('span', { className: 'knob' })
+                  React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('label', { className: 'text-sm' }, 'Ensure all initials (ㄱ–ㅎ) appear'),
+                    React.createElement('label', { className: 'switch' },
+                      React.createElement('input', { type: 'checkbox', checked: ensureAllInitials, onChange: e => setEnsureAllInitials(e.target.checked) }),
+                      React.createElement('span', { className: 'knob' })
+                    )
+                  ),
+                  React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('label', { className: 'text-sm' }, 'Allow no final (CV)'),
+                    React.createElement('label', { className: 'switch' },
+                      React.createElement('input', { type: 'checkbox', checked: allowNoFinal, onChange: e => setAllowNoFinal(e.target.checked) }),
+                      React.createElement('span', { className: 'knob' })
+                    )
                   )
                 ),
-                React.createElement('label', { className: 'text-sm' }, `Pitch (톤) ${pitch.toFixed(2)}`),
-                React.createElement('input', { type: 'range', min: 0.8, max: 1.2, step: 0.01, value: pitch, onChange: e => setPitch(parseFloat(e.target.value)), className: 'w-full' })
+
+                // column 2: vowels
+                React.createElement('div', { className: 'space-y-2' },
+                  React.createElement('label', { className: 'text-sm font-bold' }, 'Vowels (중성)'),
+                  React.createElement('div', { className: 'grid grid-cols-10 gap-2' },
+                    ALL_VOWELS.map(v => React.createElement('button', {
+                      key: v.jamo,
+                      onClick: () => toggleMap(setEnabledVowels, v.jamo),
+                      className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledVowels[v.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`
+                    }, v.jamo))
+                  )
+                ),
+
+                // column 3: finals
+                React.createElement('div', { className: 'space-y-2' },
+                  React.createElement('label', { className: 'text-sm font-bold' }, 'Finals / 받침 (종성)'),
+                  React.createElement('div', { className: 'grid grid-cols-8 gap-2' },
+                    BATCHIM.map(f => React.createElement('button', {
+                      key: f.jamo,
+                      onClick: () => toggleMap(setEnabledFinals, f.jamo),
+                      className: `border rounded-xl py-2 px-3 whitespace-nowrap inline-flex items-center justify-center ${enabledFinals[f.jamo] ? 'bg-gray-900 text-white' : 'bg-white text-black'}`,
+                      style: f.jamo === '(none)' ? { fontSize: '0.7rem' } : {}
+                    }, f.jamo))
+                  ),
+                  React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' For focused CVC practice, enable ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅇ and turn off "Allow no final".')
+                )
+              ),
+
+              // speech settings
+              React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 border-t' },
+                React.createElement('div', { className: 'space-y-2' },
+                  React.createElement('label', { className: 'text-sm font-bold' }, 'Voice (음성)'),
+                  React.createElement('div', { className: 'flex items-center gap-2 mt-2' },
+                    React.createElement('select', {
+                        className: 'border rounded-xl px-3 py-2 w-full text-black bg-white [color-scheme:light]',
+                        value: voiceName || (orderedVoices[0]?.name || ''),
+                        onChange: e => setVoiceName(e.target.value)
+                      },
+                      orderedVoices.map((v, idx) => React.createElement('option', { key: idx, value: v.name }, `${v.name} ${v.lang ? '('+v.lang+')' : ''}`))
+                    ),
+                    React.createElement('button', { className: 'btn', onClick: refreshVoices, title: 'Reload voices' }, 'Reload'),
+                    React.createElement('button', { className: 'btn primary', onClick: () => speakLocal('가.', selectedVoice, rate, pitch) }, 'Test voice')
+                  ),
+                  React.createElement('p', { className: 'text-xs text-gray-500' }, React.createElement('strong', null, 'Tip:'), ' We recommend selecting Google from the dropdown menu above.')
+                ),
+                React.createElement('div', { className: 'space-y-2' },
+                  React.createElement('label', { className: 'text-sm' }, `Speed (속도) ${rate.toFixed(2)}`),
+                  React.createElement('input', { type: 'range', min: 0.6, max: 1.2, step: 0.01, value: rate, onChange: e => setRate(parseFloat(e.target.value)), className: 'w-full' }),
+                  React.createElement('label', { className: 'text-sm' }, `Pause between syllables (ms): ${pauseMs}ms`),
+                  React.createElement('input', { type: 'range', min: 80, max: 400, step: 10, value: pauseMs, onChange: e => setPauseMs(parseInt(e.target.value)), className: 'w-full' })
+                ),
+                React.createElement('div', { className: 'space-y-2' },
+                  React.createElement('div', { className: 'flex items-center justify-between' },
+                    React.createElement('label', { className: 'text-sm' }, 'Crisp single-syllable mode (adds a period)'),
+                    React.createElement('label', { className: 'switch' },
+                      React.createElement('input', { type: 'checkbox', checked: crispSingle, onChange: e => setCrispSingle(e.target.checked) }),
+                      React.createElement('span', { className: 'knob' })
+                    )
+                  ),
+                  React.createElement('label', { className: 'text-sm' }, `Pitch (톤) ${pitch.toFixed(2)}`),
+                  React.createElement('input', { type: 'range', min: 0.8, max: 1.2, step: 0.01, value: pitch, onChange: e => setPitch(parseFloat(e.target.value)), className: 'w-full' })
+                )
               )
             )
-          )
-        ),
-
-        React.createElement('div', { className: 'card' },
-          React.createElement('div', { className: 'p-5 border-b' },
-            React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Random Mix')
           ),
-          React.createElement('div', { className: 'p-5' },
-            React.createElement('div', { className: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3' },
-              data.map((d, i) => React.createElement('button', {
-                key: i,
-                className: 'aspect-square flex items-center justify-center text-2xl md:text-3xl border rounded-2xl hover:shadow focus:outline-none transition-transform',
-                title: `${d.parts} — Click to hear`,
-                onClick: () => speakLocal((crispSingle ? d.syll + '.' : d.syll), selectedVoice, rate, pitch)
-              }, d.syll))
+
+          React.createElement('div', { className: 'card' },
+            React.createElement('div', { className: 'p-5 border-b' },
+              React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Random Mix')
             ),
-            React.createElement('div', { className: 'mt-4 flex items-center justify-center gap-3' },
-              React.createElement('button', { className: 'btn primary', onClick: () => { setCount(c => (c >= 14 ? c - 0.0001 : c + 0.0001)); } }, 'Shuffle'),
-              React.createElement('button', { className: 'btn', onClick: () => readAllQueuedLocal(data.map(d=>d.syll), selectedVoice, rate, pitch, pauseMs) }, 'Read All (queued)'),
-              React.createElement('button', { className: 'btn', onClick: stopSpeaking }, 'Stop')
+            React.createElement('div', { className: 'p-5' },
+              React.createElement('div', { className: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3' },
+                data.map((d, i) => React.createElement('button', {
+                  key: i,
+                  className: 'aspect-square flex items-center justify-center text-2xl md:text-3xl border rounded-2xl hover:shadow focus:outline-none transition-transform',
+                  title: `${d.parts} — Click to hear`,
+                  onClick: () => speakLocal((crispSingle ? d.syll + '.' : d.syll), selectedVoice, rate, pitch)
+                }, d.syll))
+              ),
+              React.createElement('div', { className: 'mt-4 flex items-center justify-center gap-3' },
+                React.createElement('button', { className: 'btn primary', onClick: () => { setCount(c => (c >= 14 ? c - 0.0001 : c + 0.0001)); } }, 'Shuffle'),
+                React.createElement('button', { className: 'btn', onClick: () => readAllQueuedLocal(data.map(d=>d.syll), selectedVoice, rate, pitch, pauseMs) }, 'Read All (queued)'),
+                React.createElement('button', { className: 'btn', onClick: stopSpeaking }, 'Stop')
+              )
             )
+          ),
+
+          React.createElement('div', { className: 'text-sm text-gray-500' }, 
+            '\u00A9 2025 ',
+            React.createElement('span', { style: { color: '#3498db' } }, 'Korean'),
+            React.createElement('span', { style: { color: '#ff7777' } }, 'Learnin'),
+            '. All rights reserved. \u2022 ',
+            React.createElement('strong', null, 'Tip:'),
+            ' Click any tile to hear it. If no sound, pick a specific voice or hit Reload voices.'
           )
         ),
 
-        React.createElement('div', { className: 'text-sm text-gray-500' }, 
-          '\u00A9 2025 ',
-          React.createElement('span', { style: { color: '#3498db' } }, 'Korean'),
-          React.createElement('span', { style: { color: '#ff7777' } }, 'Learnin'),
-          '. All rights reserved. \u2022 ',
-          React.createElement('strong', null, 'Tip:'),
-          ' Click any tile to hear it. If no sound, pick a specific voice or hit Reload voices.'
+        // Video Tutorials step
+        React.createElement('div', { id: 'videoTutorials', className: 'step', style: { display: 'none' } },
+          React.createElement('div', { className: 'text-center mb-6' },
+            React.createElement('img', { 
+              src: 'https://cdn.shopify.com/s/files/1/0674/6747/7282/files/logo555.png?v=1757969221',
+              alt: 'Logo',
+              className: 'mx-auto max-w-xs h-auto'
+            })
+          ),
+          
+          React.createElement('h1', { className: 'text-lg md:text-2xl font-bold text-center mb-8' }, 'Video Tutorials & PDFs'),
+          
+          // Aspiration Instruction Video
+          React.createElement('div', { className: 'card mb-6' },
+            React.createElement('div', { className: 'p-5 border-b' },
+              React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Aspiration Instruction Video')
+            ),
+            React.createElement('div', { className: 'p-5' },
+              React.createElement('div', { className: 'video-container' },
+                React.createElement('iframe', {
+                  src: 'https://www.loom.com/embed/30cd87e591954120a2ec29e9b0f03a95?sid=9b0ed21d-e065-4211-a6ad-8ef77ca067d4',
+                  webkitallowfullscreen: true,
+                  mozallowfullscreen: true,
+                  allowFullScreen: true
+                })
+              )
+            )
+          ),
+
+          // Consonant Aspiration Cheatsheet
+          React.createElement('div', { className: 'card mb-6' },
+            React.createElement('div', { className: 'p-5 border-b' },
+              React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Consonant Aspiration Cheatsheet')
+            ),
+            React.createElement('div', { className: 'p-5' },
+              React.createElement('div', { className: 'video-container' },
+                React.createElement('iframe', {
+                  src: 'https://www.canva.com/design/DAGxMlmrT-w/vOVa2yQvNXnN2beu7KkI8w/view?embed',
+                  allowFullScreen: true
+                })
+              )
+            )
+          ),
+
+          // Consonant Carry Instruction Video
+          React.createElement('div', { className: 'card mb-6' },
+            React.createElement('div', { className: 'p-5 border-b' },
+              React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Consonant Carry Instruction Video')
+            ),
+            React.createElement('div', { className: 'p-5' },
+              React.createElement('div', { className: 'video-container' },
+                React.createElement('iframe', {
+                  src: 'https://www.loom.com/embed/605e543d305b4d3bbfbac0619d7f1173?sid=c35bf902-0105-475d-b488-1d45c38f320b',
+                  webkitallowfullscreen: true,
+                  mozallowfullscreen: true,
+                  allowFullScreen: true
+                })
+              )
+            )
+          ),
+
+          // Consonant Assimilation CheatSheet
+          React.createElement('div', { className: 'card mb-6' },
+            React.createElement('div', { className: 'p-5 border-b' },
+              React.createElement('div', { className: 'flex items-center gap-2 font-semibold' }, 'Consonant Assimilation CheatSheet')
+            ),
+            React.createElement('div', { className: 'p-5' },
+              React.createElement('div', { className: 'video-container' },
+                React.createElement('iframe', {
+                  src: 'https://www.canva.com/design/DAGllr2msIQ/CuSlSO3r4veYTPY-kUQDUQ/view?embed',
+                  allowFullScreen: true
+                })
+              ),
+              React.createElement('p', { className: 'text-2xl text-gray-600 mt-3 text-center font-bold' }, 'For those who have mastered aspiration')
+            )
+          ),
+
+          // Back button
+          React.createElement('div', { className: 'text-center mt-8' },
+            React.createElement('button', { 
+              className: 'btn purple px-8 py-3',
+              onClick: () => window.showStep('mainPage')
+            }, 'Back to Main Page')
+          )
         )
       )
     );
